@@ -12,7 +12,6 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  
   String? userUid;
   @override
   void initState() {
@@ -30,12 +29,19 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder(
+      body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
           // user logged In
           if (snapshot.hasData) {
             return HomePage(userUid: userUid.toString());
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
           // user not logged in
           else {
