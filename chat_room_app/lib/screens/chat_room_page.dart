@@ -60,9 +60,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     });
   }
 
-  Align myMessage(txt, time) {
+  Align messages(txt, time, alignment) {
     return Align(
-      alignment: Alignment.bottomRight,
+      alignment: alignment,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -107,45 +107,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     );
   }
 
-  Align othersMessage(txt, time) {
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: text(
-                  txt ?? 'chat',
-                  fontsize: 20,
-                  clr: Colors.black,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: text(
-                  time ?? 'time',
-                  fontsize: 10,
-                  clr: Colors.grey,
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,10 +139,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       } else if (snapshot.connectionState ==
                               ConnectionState.done ||
                           snapshot.connectionState == ConnectionState.active) {
-                        return ListView.builder(
+                        return ListView.separated(
                           dragStartBehavior: DragStartBehavior.down,
                           shrinkWrap: true,
                           itemCount: snapshot.data!.docs.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             if (snapshot.data!.docs.isEmpty) {
                               return Center(
@@ -201,8 +164,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                   .toList()[index]
                                   .toString();
                               return isUserMessage
-                                  ? myMessage(message.toString(), time)
-                                  : othersMessage(message.toString(), time);
+                                  ? messages(message.toString(), time,
+                                      Alignment.bottomRight)
+                                  : messages(message.toString(), time,
+                                      Alignment.bottomLeft);
                             }
                             return const Center(
                               child: CircularProgressIndicator(),

@@ -19,20 +19,7 @@ createRoomDialog({
   required String currentUserId,
 }) {
   bool obscurity = false;
-  dynamic suffixicn() {
-    return StatefulBuilder(
-      builder: (context, setState) => IconButton(
-        onPressed: () {
-          setState(() {
-            obscurity = !obscurity;
-          });
-        },
-        icon: Icon(
-          obscurity ? Icons.visibility_off : Icons.visibility,
-        ),
-      ),
-    );
-  }
+  
 
   String? adminName;
   String? adminId;

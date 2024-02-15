@@ -9,6 +9,7 @@ import 'package:chat_room_app/models/textformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -60,6 +61,11 @@ class _LoginPageState extends State<LoginPage> {
 
       log(docIds.toString());
     });
+  }
+
+  addDataInSharedPreference(currentUserId) async {
+    final setDataInLocal = await SharedPreferences.getInstance();
+    setDataInLocal.setString('UserId', currentUserId.toString());
   }
 
   @override
@@ -167,6 +173,8 @@ class _LoginPageState extends State<LoginPage> {
                           .containsValue(pwdController.text.toString())) {
                         log('Password is same');
                         final userUid = recentData['UserUid'];
+
+                        addDataInSharedPreference(userUid.toString());
 
                         if (context.mounted) {
                           Navigator.pushAndRemoveUntil(

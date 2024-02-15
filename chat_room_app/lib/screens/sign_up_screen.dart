@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -55,6 +56,13 @@ class _SignUpPageState extends State<SignUpPage> {
       log('init method Sign In Page');
       snapshot.docs.map((e) => log(e.id.toString())).toList().toString();
     });
+  }
+
+  addDataInSharedPreference(currentUserId) async {
+    final setDataInLocal = await SharedPreferences.getInstance();
+    setDataInLocal.setString('UserId', currentUserId.toString());
+    setDataInLocal.setString('UserEmail', usernameController.text.toString());
+    setDataInLocal.setString('UserPassword', pwdController.text.toString());
   }
 
   @override
@@ -185,6 +193,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
                         final currentUserId = CloudDatabase.userUid;
                         log(currentUserId.toString(), name: 'UserId');
+                        log('Add Data in Shared Preference');
+                        addDataInSharedPreference(currentUserId);
 
                         FirebaseFirestore.instance
                             .collection('User')
@@ -193,7 +203,6 @@ class _SignUpPageState extends State<SignUpPage> {
                           'UserUid': currentUserId.toString(),
                         });
                         log('update UserUid Completed');
-                        Future.delayed(const Duration(seconds: 2));
 
                         if (context.mounted) {
                           log('Navigation');
