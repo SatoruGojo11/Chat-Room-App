@@ -30,6 +30,20 @@ class _SignUpPageState extends State<SignUpPage> {
 
   String userUid = '';
   List<String> docIds = [];
+  bool obscurity = false;
+
+  dynamic suffixicn() {
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          obscurity = !obscurity;
+        });
+      },
+      icon: Icon(
+        obscurity ? Icons.visibility_off : Icons.visibility,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -64,6 +78,7 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 const SizedBox(height: 100),
                 Form(
+                  // autovalidateMode: AutovalidateMode.always,
                   key: _validationkey,
                   child: Column(
                     children: [
@@ -123,10 +138,17 @@ class _SignUpPageState extends State<SignUpPage> {
                       textformfield(
                         pwdController,
                         labeltxt: 'Password',
-                        hinttxt: 'Enter your Password',
-                        validator: (value) {
+                        hinttxt: 'Enter Your Password',
+                        obscurity: obscurity,
+                        suffixicn: suffixicn(),
+                        inputFormate: [
+                          FilteringTextInputFormatter.deny(
+                            RegExp(' '),
+                          ),
+                        ],
+                        validator: (String? value) {
                           if (value == null || value.isEmpty) {
-                            return "Please Enter your Password";
+                            return "Please Enter your password";
                           }
                           return null;
                         },
@@ -156,6 +178,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           username: usernameController.text.toString(),
                           useremail: emailController.text.toLowerCase(),
                           userPassword: pwdController.text.toString(),
+                          userPhoneNo:
+                              int.parse(phoneController.text).toString(),
                         );
                         log('Set Completed');
 
@@ -172,20 +196,23 @@ class _SignUpPageState extends State<SignUpPage> {
                         Future.delayed(const Duration(seconds: 2));
 
                         if (context.mounted) {
-                          Navigator.pushReplacement(
+                          log('Navigation');
+
+                          Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => HomePage(
                                   userUid: currentUserId.toString(),
                                 ),
-                              ));
+                              ),
+                              (route) => false);
                           Fluttertoast.showToast(
                             msg: 'Signed Up Successful',
                             backgroundColor: Colors.green,
                           );
                         }
                         log('try Part');
-                        log(credential.user!.email.toString());
+                        log(credential.user!.displayName.toString());
                         usernameController.clear();
                         phoneController.clear();
                         emailController.clear();
@@ -193,17 +220,27 @@ class _SignUpPageState extends State<SignUpPage> {
                       } on FirebaseAuthException catch (e) {
                         log('Catch On Part');
                         if (e.code == 'user-not-found') {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                           Fluttertoast.showToast(
                             msg: 'User Not Found',
                             backgroundColor: Colors.red,
                           );
                         } else if (e.code == 'wrong-password') {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                           Fluttertoast.showToast(
                             msg: 'Wrong Password',
                             backgroundColor: Colors.red,
                           );
                         } else {
                           log(e.toString());
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+
                           Fluttertoast.showToast(
                             msg:
                                 'Email-id is already in use by another Account',

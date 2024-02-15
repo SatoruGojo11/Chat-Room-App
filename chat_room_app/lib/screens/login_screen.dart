@@ -28,6 +28,21 @@ class _LoginPageState extends State<LoginPage> {
   List<Map<dynamic, dynamic>> docs = [];
   var recentData = {};
 
+  bool obscurity = false;
+
+  dynamic suffixicn() {
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          obscurity = !obscurity;
+        });
+      },
+      icon: Icon(
+        obscurity ? Icons.visibility_off : Icons.visibility,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +81,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 40),
             Form(
               key: _validationkey,
+              // autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 children: [
                   textformfield(
@@ -92,6 +108,13 @@ class _LoginPageState extends State<LoginPage> {
                     pwdController,
                     labeltxt: 'Password',
                     hinttxt: 'Enter Your Password',
+                    obscurity: obscurity,
+                    suffixicn: suffixicn(),
+                    inputFormate: [
+                      FilteringTextInputFormatter.deny(
+                        RegExp(' '),
+                      ),
+                    ],
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return "Please Enter your password";
@@ -144,13 +167,16 @@ class _LoginPageState extends State<LoginPage> {
                           .containsValue(pwdController.text.toString())) {
                         log('Password is same');
                         final userUid = recentData['UserUid'];
+
                         if (context.mounted) {
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    HomePage(userUid: userUid.toString()),
-                              ));
+                                builder: (context) => HomePage(
+                                  userUid: userUid.toString(),
+                                ),
+                              ),
+                              (route) => false);
                           Fluttertoast.showToast(
                             msg: 'Logged In Successful',
                             backgroundColor: Colors.green,

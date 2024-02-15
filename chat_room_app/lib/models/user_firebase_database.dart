@@ -7,6 +7,7 @@ class CloudDatabase {
     required String username,
     required String useremail,
     required String userPassword,
+    required String userPhoneNo,
   }) async {
     DocumentReference documentReference =
         FirebaseFirestore.instance.collection('User').doc();
@@ -22,6 +23,7 @@ class CloudDatabase {
       'UserName': username,
       'UserEmail': useremail,
       'UserPassword': userPassword,
+      'UserPhoneNo': userPhoneNo,
       'UserUid': userUid,
     };
 

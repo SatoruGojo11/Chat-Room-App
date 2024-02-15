@@ -19,7 +19,6 @@ TextFormField textformfield(
   return TextFormField(
     obscureText: obscurity ?? false,
     controller: ctrl,
-    obscuringCharacter: "*",
     maxLength: maxLength,
     maxLines: 1,
     keyboardType: keyboardtype,
