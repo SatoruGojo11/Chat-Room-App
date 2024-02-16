@@ -58,11 +58,11 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  addDataInSharedPreference(currentUserId) async {
+  addDataInSharedPreference(currentUserId, currentUserName) async {
     final setDataInLocal = await SharedPreferences.getInstance();
+    log(currentUserId.toString(), name: 'User Id Added in SharedPreference');
     setDataInLocal.setString('UserId', currentUserId.toString());
-    setDataInLocal.setString('UserEmail', usernameController.text.toString());
-    setDataInLocal.setString('UserPassword', pwdController.text.toString());
+    setDataInLocal.setString('UserName', currentUserName.toString());
   }
 
   @override
@@ -194,7 +194,8 @@ class _SignUpPageState extends State<SignUpPage> {
                         final currentUserId = CloudDatabase.userUid;
                         log(currentUserId.toString(), name: 'UserId');
                         log('Add Data in Shared Preference');
-                        addDataInSharedPreference(currentUserId);
+                        addDataInSharedPreference(
+                            currentUserId, usernameController.text.toString());
 
                         FirebaseFirestore.instance
                             .collection('User')

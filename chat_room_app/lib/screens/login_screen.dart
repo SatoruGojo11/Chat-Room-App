@@ -63,9 +63,11 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  addDataInSharedPreference(currentUserId) async {
+  addDataInSharedPreference(currentUserId, currentUserName) async {
     final setDataInLocal = await SharedPreferences.getInstance();
+    log(currentUserId.toString(), name: 'User Id Added in SharedPreference');
     setDataInLocal.setString('UserId', currentUserId.toString());
+    setDataInLocal.setString('UserName', currentUserName.toString());
   }
 
   @override
@@ -87,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 40),
             Form(
               key: _validationkey,
-              // autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 children: [
                   textformfield(
@@ -173,8 +174,14 @@ class _LoginPageState extends State<LoginPage> {
                           .containsValue(pwdController.text.toString())) {
                         log('Password is same');
                         final userUid = recentData['UserUid'];
+                        final userName = recentData['UserUid'];
 
-                        addDataInSharedPreference(userUid.toString());
+                        addDataInSharedPreference(
+                          userUid.toString(),
+                          userName.toString(),
+                        );
+                        log('Add Data in Shared Preference',
+                            name: 'Shared Preference');
 
                         if (context.mounted) {
                           Navigator.pushAndRemoveUntil(

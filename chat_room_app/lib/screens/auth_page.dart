@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_room_app/screens/home_screen.dart';
 import 'package:chat_room_app/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,17 +15,20 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   String? userUid;
+  String? userName;
   @override
   void initState() {
     super.initState();
-    userUid = getSharedPrefData().toString();
+    getSharedPrefData();
+    log(userUid.toString());
+    log(userName.toString());
   }
 
-  Future<String> getSharedPrefData() async {
+  getSharedPrefData() async {
     final getDataInLocal = await SharedPreferences.getInstance();
 
-    final userUid = getDataInLocal.getString('UserId');
-    return userUid!;
+    userUid = getDataInLocal.getString('UserId');
+    userName = getDataInLocal.getString('UserName');
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_room_app/models/text.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.userUid});
@@ -18,7 +19,6 @@ class _HomePageState extends State<HomePage> {
   final roomCollectionReference = FirebaseFirestore.instance.collection('Room');
   final userCollectionReference = FirebaseFirestore.instance.collection('User');
 
-  Map userData = {};
   late String roomId;
   late String currentUserId;
   late String userName;
@@ -31,19 +31,15 @@ class _HomePageState extends State<HomePage> {
     log('Init method in Home Page');
     currentUserId = widget.userUid.toString();
     log(currentUserId.toString());
-
-    fetchData();
-    log(userData.toString(), name: 'User Data');
+    currentUserId = getSharedPrefData().toString();
+    getSharedPrefData();
   }
 
-  Future<void> fetchData() async {
-    log('Fetch Data Method');
-    var documentReference = userCollectionReference.doc(currentUserId);
+  getSharedPrefData() async {
+    final getDataInLocal = await SharedPreferences.getInstance();
 
-    await documentReference.get().then((value) {
-      userData.addAll(value.data() as Map);
-    });
-    setState(() {}); // For updating User name
+    // userUid = getDataInLocal.getString('UserId');
+    userName = getDataInLocal.getString('UserName')!;
   }
 
   @override
@@ -93,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                         side: const BorderSide(color: Colors.orange, width: 1),
                         borderRadius: BorderRadius.circular(20)),
                     title: text(
-                      'Admin :- ${userData['UserName']}',
+                      'Admin :- $currentUserId',
                       fontWeight: FontWeight.bold,
                       fontsize: 20,
                     ),
@@ -193,7 +189,6 @@ class _HomePageState extends State<HomePage> {
                                                   roomId: roomId,
                                                   roomName: roomName,
                                                   roomPassword: roomPassword);
-      
                                             },
                                           );
                                         },
