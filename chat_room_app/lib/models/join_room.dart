@@ -1,7 +1,8 @@
 import 'dart:developer';
+
 import 'package:chat_room_app/models/text.dart';
 import 'package:chat_room_app/models/textformfield.dart';
-import 'package:chat_room_app/screens/chat_room_page.dart';
+import 'package:chat_room_app/screens/chat_room_screen.dart';
 import 'package:chat_room_app/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +21,12 @@ joinRoom({
   required BuildContext ctx,
   required String? title,
   required String currentUserId,
+  required String? currentUserName,
   required String? roomPassword,
   required String? roomId,
-  required String? roomName,
+  required String? roomName,  
 }) {
   bool obscurity = false;
-  List<String> roomUsers = [];
   Map roomData = {};
   return Align(
     alignment: Alignment.center,
@@ -96,37 +97,36 @@ joinRoom({
               if (_validationkey.currentState!.validate()) {
                 if (roomPassword ==
                     joinRoomPasswordController.text.toString()) {
-                  Navigator.pushAndRemoveUntil(
-                    ctx,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          HomePage(userUid: currentUserId.toString()),
-                    ),
-                    (route) => false,
-                  );
                   final roomDocumentReference =
                       FirebaseFirestore.instance.collection('Room').doc(roomId);
 
                   await roomDocumentReference.get().then((value) {
                     final totalData = value.data() as Map;
                     roomData.addAll(totalData);
-
-                    log(roomData.toString(), name: 'Room Data');
                   });
 
-                  if (currentUserId != roomData['AdminId']) {
-                    roomUsers.add(roomData['AdminId']);
-                    roomUsers.add(currentUserId);
-                    roomDocumentReference.update({
-                      'RoomUsersId': roomUsers,
-                    });
-                  } else if (currentUserId != roomData['AdminId']) {
-                    roomUsers.add(currentUserId);
+                  log(roomData.toString());
+
+                  if (!roomData['RoomUsersId']
+                      .toString()
+                      .contains(currentUserId.toString())) {
+                    final List roomUsers = roomData['RoomUsersId'] as List;
+
+                    roomUsers.add(currentUserId.toString());
+
                     roomDocumentReference.update({
                       'RoomUsersId': roomUsers,
                     });
                   }
                   if (ctx.mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      ctx,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            HomePage(userUid: currentUserId.toString()),
+                      ),
+                      (route) => false,
+                    );
                     Navigator.push(
                         ctx,
                         MaterialPageRoute(
@@ -135,6 +135,7 @@ joinRoom({
                             roomId: roomId.toString(),
                             roomName: roomName.toString(),
                             adminUid: roomData['AdminId'],
+                            currentUserName: currentUserName.toString(),
                           ),
                         ));
                   }

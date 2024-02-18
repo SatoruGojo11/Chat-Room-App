@@ -46,23 +46,11 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    CollectionReference collectionReference =
-        FirebaseFirestore.instance.collection('User');
-
-    collectionReference.get().then((QuerySnapshot snapshot) {
-      log('init method Sign In Page');
-      snapshot.docs.map((e) => log(e.id.toString())).toList().toString();
-    });
-  }
-
   addDataInSharedPreference(currentUserId, currentUserName) async {
     final setDataInLocal = await SharedPreferences.getInstance();
     log(currentUserId.toString(), name: 'User Id Added in SharedPreference');
-    setDataInLocal.setString('UserId', currentUserId.toString());
-    setDataInLocal.setString('UserName', currentUserName.toString());
+    await setDataInLocal.setString('UserId', currentUserId.toString());
+    await setDataInLocal.setString('UserName', currentUserName.toString());
   }
 
   @override
@@ -167,7 +155,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 15),
                 ElevatedButton(
                   onPressed: () async {
-                    log('Sign up button Clicked');
                     if (_validationkey.currentState!.validate()) {
                       try {
                         showDialog(
@@ -176,8 +163,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             child: CircularProgressIndicator(),
                           ),
                         );
-                        final credential =
-                            await auth.createUserWithEmailAndPassword(
+
+                        await auth.createUserWithEmailAndPassword(
                           email: emailController.text.toLowerCase(),
                           password: pwdController.text.toString(),
                         );
@@ -189,13 +176,10 @@ class _SignUpPageState extends State<SignUpPage> {
                           userPhoneNo:
                               int.parse(phoneController.text).toString(),
                         );
-                        log('Set Completed');
 
                         final currentUserId = CloudDatabase.userUid;
-                        log(currentUserId.toString(), name: 'UserId');
-                        log('Add Data in Shared Preference');
-                        addDataInSharedPreference(
-                            currentUserId, usernameController.text.toString());
+                        final currentUserName =
+                            usernameController.text.toString();
 
                         FirebaseFirestore.instance
                             .collection('User')
@@ -203,11 +187,15 @@ class _SignUpPageState extends State<SignUpPage> {
                             .update({
                           'UserUid': currentUserId.toString(),
                         });
-                        log('update UserUid Completed');
+                        Future.delayed(const Duration(seconds: 2));
+                        await addDataInSharedPreference(
+                          currentUserId.toString(),
+                          currentUserName.toString(),
+                        );
+                        log('Add Data in Shared Preference',
+                            name: 'Shared Preference');
 
                         if (context.mounted) {
-                          log('Navigation');
-
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
@@ -221,14 +209,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             backgroundColor: Colors.green,
                           );
                         }
-                        log('try Part');
-                        log(credential.user!.displayName.toString());
                         usernameController.clear();
                         phoneController.clear();
                         emailController.clear();
                         pwdController.clear();
                       } on FirebaseAuthException catch (e) {
-                        log('Catch On Part');
                         if (e.code == 'user-not-found') {
                           if (context.mounted) {
                             Navigator.pop(context);
@@ -246,7 +231,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             backgroundColor: Colors.red,
                           );
                         } else {
-                          log(e.toString());
                           if (context.mounted) {
                             Navigator.pop(context);
                           }

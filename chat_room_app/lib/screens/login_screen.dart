@@ -49,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
 
     collectionReference.get().then((QuerySnapshot snapshot) {
-      log('init method Login Page');
       snapshot.docs
           .map((e) {
             log(e.id.toString());
@@ -58,16 +57,14 @@ class _LoginPageState extends State<LoginPage> {
           })
           .toList()
           .toString();
-
-      log(docIds.toString());
     });
   }
 
-  addDataInSharedPreference(currentUserId, currentUserName) async {
+  Future<void> addDataInSharedPreference(currentUserId, currentUserName) async {
     final setDataInLocal = await SharedPreferences.getInstance();
     log(currentUserId.toString(), name: 'User Id Added in SharedPreference');
-    setDataInLocal.setString('UserId', currentUserId.toString());
-    setDataInLocal.setString('UserName', currentUserName.toString());
+    await setDataInLocal.setString('UserId', currentUserId.toString());
+    await setDataInLocal.setString('UserName', currentUserName.toString());
   }
 
   @override
@@ -89,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 40),
             Form(
               key: _validationkey,
+              // autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 children: [
                   textformfield(
@@ -135,7 +133,6 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 15),
             ElevatedButton(
               onPressed: () async {
-                log('Login Button Clicked');
                 if (_validationkey.currentState!.validate()) {
                   try {
                     showDialog(
@@ -144,39 +141,32 @@ class _LoginPageState extends State<LoginPage> {
                         child: CircularProgressIndicator(),
                       ),
                     );
-                    log('try Part');
+
                     await auth.signInWithEmailAndPassword(
                       email: emailController.text.toLowerCase(),
                       password: pwdController.text.toString(),
                     );
 
-                    log(docIds.toString());
                     for (int i = 0; i < docIds.length; i++) {
-                      log(docIds[i].toString());
                       final snapShot =
                           await collectionReference.doc(docIds[i]).get();
                       docs.add(snapShot.data() as Map);
 
                       if (docs[i]
                           .containsValue(emailController.text.toLowerCase())) {
-                        log(docs[i].toString());
                         recentData.addAll(docs[i]);
 
                         i = docIds.length;
                       }
                     }
-                    log(recentData.toString());
-                    log('Recent Data :- ${recentData.toString()}');
                     if (recentData
                         .containsValue(emailController.text.toLowerCase())) {
-                      log('Email id is same');
                       if (recentData
                           .containsValue(pwdController.text.toString())) {
-                        log('Password is same');
                         final userUid = recentData['UserUid'];
-                        final userName = recentData['UserUid'];
+                        final userName = recentData['UserName'];
 
-                        addDataInSharedPreference(
+                        await addDataInSharedPreference(
                           userUid.toString(),
                           userName.toString(),
                         );
@@ -205,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       }
                     } else {
-                      // Navigator.pop(context);
                       Fluttertoast.showToast(
                         msg: 'User Not Found',
                         backgroundColor: Colors.red,
@@ -216,15 +205,14 @@ class _LoginPageState extends State<LoginPage> {
                     pwdController.clear();
                   } on FirebaseAuthException catch (e) {
                     log('Catch On Part');
-                    if (e.code == 'weak-password') {
-                      Fluttertoast.showToast(msg: 'Weak Password');
-                    } else if (e.code == 'email-already-in-use') {
-                      Fluttertoast.showToast(
-                          msg: 'This email is already in use...');
-                    } else {
-                      log(e.toString());
+
+                    Fluttertoast.showToast(
+                      msg: 'Wrong Password',
+                      backgroundColor: Colors.red,
+                    );
+                    if (context.mounted) {
+                      Navigator.pop(context);
                     }
-                  } catch (e) {
                     log(e.toString());
                   }
                 } else {

@@ -1,8 +1,11 @@
 import 'dart:developer';
+
 import 'package:chat_room_app/models/create_room.dart';
 import 'package:chat_room_app/models/join_room.dart';
+import 'package:chat_room_app/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_room_app/models/text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,28 +22,43 @@ class _HomePageState extends State<HomePage> {
   final roomCollectionReference = FirebaseFirestore.instance.collection('Room');
   final userCollectionReference = FirebaseFirestore.instance.collection('User');
 
+  Map userData = {};
   late String roomId;
   late String currentUserId;
   late String userName;
+  String? userNameSP;
   List<Map<String, dynamic>> roomData = [];
 
   @override
   void initState() {
     super.initState();
 
-    log('Init method in Home Page');
     currentUserId = widget.userUid.toString();
-    log(currentUserId.toString());
-    currentUserId = getSharedPrefData().toString();
+
+    // fetchData();
+
     getSharedPrefData();
+    setState(() {});
   }
 
-  getSharedPrefData() async {
+  Future getSharedPrefData() async {
+    await Future.delayed(const Duration(seconds: 1));
     final getDataInLocal = await SharedPreferences.getInstance();
 
-    // userUid = getDataInLocal.getString('UserId');
-    userName = getDataInLocal.getString('UserName')!;
+    userNameSP = getDataInLocal.getString('UserName').toString();
+    log(userNameSP.toString());
+    setState(() {});
   }
+
+  // Future<void> fetchData() async {
+  //   await Future.delayed(const Duration(seconds: 1));
+  //   var documentReference = userCollectionReference.doc(currentUserId);
+
+  //   await documentReference.get().then((value) {
+  //     userData.addAll(value.data() as Map);
+  //   });
+  //   setState(() {}); // For updating User name
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +81,7 @@ class _HomePageState extends State<HomePage> {
                     ctx: context,
                     title: 'Create Room',
                     currentUserId: currentUserId.toString(),
+                    currentUserName: userNameSP.toString(),
                   );
                 },
               );
@@ -70,6 +89,7 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Create Room',
             icon: const Icon(
               Icons.add,
+              color: Colors.black,
             ),
           ),
         ],
@@ -89,11 +109,73 @@ class _HomePageState extends State<HomePage> {
                         side: const BorderSide(color: Colors.orange, width: 1),
                         borderRadius: BorderRadius.circular(20)),
                     title: text(
-                      'Admin :- $currentUserId',
+                      'Admin :- $userNameSP ',
                       fontWeight: FontWeight.bold,
                       fontsize: 20,
                     ),
                     onTap: () {},
+                    trailing: IconButton(
+                      tooltip: 'Sign Out',
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            alignment: Alignment.center,
+                            elevation: 10.0,
+                            title: Center(
+                              child: text(
+                                'Log Out',
+                                clr: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontsize: 30,
+                              ),
+                            ),
+                            content: Center(
+                              heightFactor: 1,
+                              child: text(
+                                'Are you sure??',
+                                clr: Colors.black,
+                                fontsize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            actionsAlignment: MainAxisAlignment.spaceEvenly,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  FirebaseAuth.instance.signOut();
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const LoginPage(),
+                                      ),
+                                      (route) => false);
+                                },
+                                child: text(
+                                  'Yes',
+                                  fontsize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: text(
+                                  'No',
+                                  fontsize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Colors.black,
+                      ),
+                    ),
                     tileColor: Colors.orange,
                     splashColor: Colors.amber,
                   ),
@@ -172,12 +254,6 @@ class _HomePageState extends State<HomePage> {
                                               .map((e) => e['RoomPassword'])
                                               .toList()[index]
                                               .toString();
-                                          log(roomId.toString(),
-                                              name: 'Room Id');
-                                          log(roomName.toString(),
-                                              name: 'Room Name');
-                                          log(roomPassword.toString(),
-                                              name: 'Room Password');
                                           showDialog(
                                             context: context,
                                             builder: (context) {
@@ -186,6 +262,8 @@ class _HomePageState extends State<HomePage> {
                                                   title: 'Join Room',
                                                   currentUserId:
                                                       currentUserId.toString(),
+                                                  currentUserName:
+                                                      userNameSP.toString(),
                                                   roomId: roomId,
                                                   roomName: roomName,
                                                   roomPassword: roomPassword);
@@ -215,9 +293,9 @@ class _HomePageState extends State<HomePage> {
                                         tileColor: Colors.green,
                                       );
                                     }
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
+                                    // return const Center(
+                                    //   child: CircularProgressIndicator(),
+                                    // );
                                   },
                                 );
                               } else {

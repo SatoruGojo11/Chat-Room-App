@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:chat_room_app/models/text.dart';
 import 'package:chat_room_app/models/textformfield.dart';
-import 'package:chat_room_app/screens/chat_room_page.dart';
+import 'package:chat_room_app/screens/chat_room_screen.dart';
 import 'package:chat_room_app/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +17,9 @@ createRoomDialog({
   required BuildContext ctx,
   required String? title,
   required String currentUserId,
+  required String currentUserName,
 }) {
   bool obscurity = false;
-  
 
   String? adminName;
   String? adminId;
@@ -75,7 +75,7 @@ createRoomDialog({
                         FilteringTextInputFormatter.deny(
                           RegExp(' '),
                         ),
-                      ],  
+                      ],
                       validator: (String? value) {
                         if (value == null || value.isEmpty) {
                           return "Please Enter your password";
@@ -122,13 +122,12 @@ createRoomDialog({
                   'RoomUsersId': roomUsers,
                 };
 
-                log(roomData.toString(), name: 'Room Data');
-
                 await documentReferenceRoom
                     .set(roomData)
                     .whenComplete(() => log('Room Created'))
                     .onError((error, stackTrace) => log(error.toString()));
 
+                final roomName = createRoomNameController.text.toString();
                 if (ctx.mounted) {
                   Navigator.pushAndRemoveUntil(
                     ctx,
@@ -143,8 +142,9 @@ createRoomDialog({
                       return ChatRoomPage(
                         userUid: currentUserId,
                         roomId: roomID.toString(),
-                        roomName: createRoomNameController.text.toString(),
+                        roomName: roomName,
                         adminUid: currentUserId,
+                        currentUserName: currentUserName,
                       );
                     },
                   ));

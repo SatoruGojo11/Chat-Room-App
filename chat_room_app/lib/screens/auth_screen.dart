@@ -16,19 +16,20 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   String? userUid;
   String? userName;
+
   @override
   void initState() {
     super.initState();
     getSharedPrefData();
-    log(userUid.toString());
-    log(userName.toString());
   }
 
-  getSharedPrefData() async {
+  Future getSharedPrefData() async {
+    await Future.delayed(const Duration(seconds: 5));
     final getDataInLocal = await SharedPreferences.getInstance();
 
     userUid = getDataInLocal.getString('UserId');
     userName = getDataInLocal.getString('UserName');
+    setState(() {});
   }
 
   @override
@@ -42,6 +43,7 @@ class _AuthPageState extends State<AuthPage> {
           }
           // user logged In
           if (snapshot.hasData) {
+            log(userUid.toString(), name: 'UserId Auth page');
             return HomePage(userUid: userUid.toString());
           } else if (snapshot.hasError) {
             return const Center(
