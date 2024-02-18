@@ -284,6 +284,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         leading: text('${index + 1}'),
                                         trailing: IconButton(
+                                          splashColor: Colors.transparent,
                                           onPressed: () {},
                                           tooltip: 'Join Room',
                                           icon: const Icon(

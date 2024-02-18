@@ -195,9 +195,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             snapshot.connectionState ==
                                 ConnectionState.active) {
                           if (snapshot.data!.docs.isNotEmpty) {
+                            // ScrollController _scrollController =
+                            //     ScrollController();
+
+                            // _scrollController.addListener(() {});
                             return ListView.builder(
                               shrinkWrap: true,
-                              // reverse: true,
                               itemCount: snapshot.data!.docs.length,
                               itemBuilder: (context, index) {
                                 final message = snapshot
@@ -215,13 +218,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 log(messageUserName.toString());
 
                                 if (messageUserId == userId) {
-                                  // setState(() {
                                   isUserMessage = true;
-                                  // });
                                 } else if (messageUserId != userId) {
-                                  // setState(() {
                                   isUserMessage = false;
-                                  // });
                                 }
                                 // if ((message.length + time.length) >
                                 //     (widget / 2)) {
@@ -302,40 +301,43 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    bottom: 10,
-                  ),
-                  child: textformfield(
-                    chatController,
-                    labeltxt: 'Type Message',
-                    maxLines: 2,
-                    suffixicn: IconButton(
-                      onPressed: () {
-                        if (chatController.text.isNotEmpty) {
-                          final documentReferenceChat =
-                              collectionReferenceChat.doc();
+                Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                    ),
+                    child: textformfield(
+                      chatController,
+                      labeltxt: 'Type Message',
+                      maxLines: 2,
+                      suffixicn: IconButton(
+                        onPressed: () {
+                          if (chatController.text.isNotEmpty) {
+                            final documentReferenceChat =
+                                collectionReferenceChat.doc();
 
-                          chatDocId = documentReferenceChat.id.toString();
+                            chatDocId = documentReferenceChat.id.toString();
 
-                          log(userName.toString(), name: 'UserName');
+                            log(userName.toString(), name: 'UserName');
 
-                          Map<String, dynamic> chat = {
-                            'UserUid': userId.toString(),
-                            'UserName': userName,
-                            'ChatMessage': chatController.text.toString(),
-                            'TimeStamp':
-                                TimeOfDay.now().format(context).toString(),
-                            'CurrentTime': DateTime.now(),
-                            'RoomId': roomId.toString(),
-                            'ChatId': chatDocId,
-                          };
-                          documentReferenceChat.set(chat);
-                          chatController.clear();
-                        }
-                      },
-                      icon: const Icon(Icons.send),
+                            Map<String, dynamic> chat = {
+                              'UserUid': userId.toString(),
+                              'UserName': userName,
+                              'ChatMessage': chatController.text.toString(),
+                              'TimeStamp':
+                                  TimeOfDay.now().format(context).toString(),
+                              'CurrentTime': DateTime.now(),
+                              'RoomId': roomId.toString(),
+                              'ChatId': chatDocId,
+                            };
+                            documentReferenceChat.set(chat);
+                            chatController.clear();
+                          }
+                        },
+                        icon: const Icon(Icons.send),
+                      ),
                     ),
                   ),
                 )

@@ -24,7 +24,7 @@ joinRoom({
   required String? currentUserName,
   required String? roomPassword,
   required String? roomId,
-  required String? roomName,  
+  required String? roomName,
 }) {
   bool obscurity = false;
   Map roomData = {};
@@ -117,6 +117,13 @@ joinRoom({
                     roomDocumentReference.update({
                       'RoomUsersId': roomUsers,
                     });
+                    Fluttertoast.showToast(
+                        fontSize: 15,
+                        toastLength: Toast.LENGTH_LONG,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        gravity: ToastGravity.BOTTOM,
+                        msg: 'Joined..');
                   }
                   if (ctx.mounted) {
                     Navigator.pushAndRemoveUntil(
@@ -141,14 +148,6 @@ joinRoom({
                   }
                   joinRoomNameController.clear();
                   joinRoomPasswordController.clear();
-
-                  Fluttertoast.showToast(
-                      fontSize: 15,
-                      toastLength: Toast.LENGTH_LONG,
-                      backgroundColor: Colors.green,
-                      textColor: Colors.white,
-                      gravity: ToastGravity.BOTTOM,
-                      msg: 'Joined..');
                 } else if (roomPassword !=
                     joinRoomPasswordController.text.toString()) {
                   Fluttertoast.showToast(
