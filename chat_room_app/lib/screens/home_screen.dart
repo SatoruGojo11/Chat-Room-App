@@ -294,9 +294,7 @@ class _HomePageState extends State<HomePage> {
                                         tileColor: Colors.green,
                                       );
                                     }
-                                    // return const Center(
-                                    //   child: CircularProgressIndicator(),
-                                    // );
+                                    return null;
                                   },
                                 );
                               } else {
@@ -304,8 +302,8 @@ class _HomePageState extends State<HomePage> {
                                     snapShot1.connectionState.toString());
                               }
                             }
-                            return const Center(
-                              child: CircularProgressIndicator(),
+                            return const CircularProgressIndicator(
+                              color: Colors.transparent,
                             );
                           },
                         ),

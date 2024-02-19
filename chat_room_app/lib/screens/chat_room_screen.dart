@@ -312,9 +312,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       chatController,
                       labeltxt: 'Type Message',
                       maxLines: 2,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please Enter your message";
+                        }
+                        return null;
+                      },
                       suffixicn: IconButton(
                         onPressed: () {
-                          if (chatController.text.isNotEmpty) {
+                          if (chatController.text.trim().isNotEmpty) {
                             final documentReferenceChat =
                                 collectionReferenceChat.doc();
 
@@ -325,7 +331,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             Map<String, dynamic> chat = {
                               'UserUid': userId.toString(),
                               'UserName': userName,
-                              'ChatMessage': chatController.text.toString(),
+                              'ChatMessage': chatController.text.trim(),
                               'TimeStamp':
                                   TimeOfDay.now().format(context).toString(),
                               'CurrentTime': DateTime.now(),

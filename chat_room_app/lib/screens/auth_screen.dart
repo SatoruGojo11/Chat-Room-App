@@ -24,7 +24,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future getSharedPrefData() async {
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 3));
     final getDataInLocal = await SharedPreferences.getInstance();
 
     userUid = getDataInLocal.getString('UserId');
